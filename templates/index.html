@@ -1,410 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>ScamGraph</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
-
 <body>
 
+<header class="header">
+    <h1>🛡️ ScamGraph</h1>
+    <p>Investigate hidden connections in scam networks</p>
+</header>
 
-    <!-- HEADER -->
+<main class="container">
+    <section class="search-card">
+        <h2>Investigate a User</h2>
+        <form method="POST">
+            <input
+                type="text"
+                name="username"
+                placeholder="Enter user name (e.g. Hemanthi)"
+                value="{{ username }}"
+                required
+            >
+            <button type="submit">🔍 Investigate</button>
+        </form>
+    </section>
 
-    <header class="header">
+    {% if error %}
+    <section class="error-card">
+        <h3>⚠️ Database Error</h3>
+        <p>{{ error }}</p>
+    </section>
+    {% endif %}
 
-        <h1>🛡️ ScamGraph</h1>
+    {% if results is not none %}
+    <section class="results-section">
 
-        <p>
-            Investigate hidden connections in scam networks
-        </p>
+        {% if results|length == 0 and not error %}
+        <div class="no-result">
+            <div class="not-found-icon">🔎</div>
+            <h2>No Investigation Results Found</h2>
+            <p>No graph data was found for <strong>"{{ username }}"</strong>.</p>
+        </div>
 
-    </header>
+        {% elif results|length > 0 %}
+        <h2 class="results-title">Investigation Results for "{{ username }}"</h2>
 
+        <div class="risk-card {{ risk_level|lower|replace(' ', '-') }}">
+            <h2>🚨 Network Risk Score</h2>
+            <div class="risk-score">{{ risk_score }}%</div>
+            <div class="risk-level">{{ risk_level }}</div>
+            <p>Risk is based on suspicious message labels and connections discovered in the graph.</p>
+        </div>
 
-    <!-- MAIN CONTENT -->
-
-    <main class="container">
-
-
-        <!-- SEARCH CARD -->
-
-        <section class="search-card">
-
-            <h2>Investigate a User</h2>
-
-            <form method="POST" id="investigationForm">
-
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Enter user name (e.g. Hemanthi)"
-                    required
-                    value="{{ username }}"
-                >
-
-                <button type="submit" id="investigateBtn">
-
-                    <span id="buttonText">
-                        🔍 Investigate
-                    </span>
-
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <!-- DATABASE ERROR STATE -->
-
-        {% if error %}
-
-            <div class="error-card">
-
-                <h3>
-                    ⚠️ Database Connection Error
-                </h3>
-
-                <p>
-                    {{ error }}
-                </p>
-
-                <p>
-                    Please check the database connection
-                    and try again.
-                </p>
-
+        {% for result in results %}
+        <article class="result-card">
+            <div class="info-row">
+                <div class="icon">📨</div>
+                <div>
+                    <h3>Message</h3>
+                    <p>{{ result.message }}</p>
+                </div>
             </div>
 
-        {% endif %}
-
-
-        <!-- RESULTS SECTION -->
-
-        {% if results is not none and not error %}
-
-            <section class="results-section">
-
-
-                <!-- EMPTY STATE -->
-
-                {% if results|length == 0 %}
-
-                    <div class="no-result">
-
-                        <div class="not-found-icon">
-
-                            🔎
-
-                        </div>
-
-
-                        <h2>
-                            No Investigation Results Found
-                        </h2>
-
-
-                        <p>
-
-                            No user named
-
-                            <strong>
-                                "{{ username }}"
-                            </strong>
-
-                            was found in the scam network.
-
-                        </p>
-
-                    </div>
-
-
-                <!-- RESULTS FOUND -->
-
-                {% else %}
-
-
-                    <h2 class="results-title">
-
-                        Investigation Results for
-
-                        "{{ username }}"
-
-                    </h2>
-
-
-                    <!-- RISK SCORE CARD -->
-
-                    <div class="risk-card">
-
-
-                        <h2>
-
-                            🚨 Network Risk Score
-
-                        </h2>
-
-
-                        <div class="risk-score">
-
-                            {{ risk_score }}%
-
-                        </div>
-
-
-                        {% if risk_level == "HIGH RISK" %}
-
-                            <div class="high-risk">
-
-                                HIGH RISK
-
-                            </div>
-
-
-                        {% elif risk_level == "LOW RISK" %}
-
-                            <div class="low-risk">
-
-                                LOW RISK
-
-                            </div>
-
-
-                        {% else %}
-
-                            <div class="low-risk">
-
-                                {{ risk_level }}
-
-                            </div>
-
-                        {% endif %}
-
-
-                        <p>
-
-                            Risk is calculated based on
-                            suspicious messages, shared phone numbers,
-                            and connections to other users.
-
-                        </p>
-
-
-                    </div>
-
-
-                    <!-- RESULT CARDS -->
-
-                    {% for result in results %}
-
-
-                        <div class="result-card">
-
-
-                            <!-- MESSAGE -->
-
-                            <div class="info-row">
-
-                                <div class="icon">
-
-                                    📨
-
-                                </div>
-
-
-                                <div>
-
-                                    <h3>
-                                        Message
-                                    </h3>
-
-                                    <p>
-
-                                        {{ result.message }}
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- LABEL -->
-
-                            <div class="info-row">
-
-                                <div class="icon">
-
-                                    🚨
-
-                                </div>
-
-
-                                <div>
-
-                                    <h3>
-                                        Label
-                                    </h3>
-
-
-                                    <p class="
-                                        {% if result.label|lower == 'scam' %}
-                                            scam
-                                        {% else %}
-                                            safe
-                                        {% endif %}
-                                    ">
-
-                                        {{ result.label }}
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- PHONE -->
-
-                            <div class="info-row">
-
-                                <div class="icon">
-
-                                    📱
-
-                                </div>
-
-
-                                <div>
-
-                                    <h3>
-                                        Shared Phone
-                                    </h3>
-
-                                    <p>
-
-                                        {{ result.phone }}
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- CONNECTED USER -->
-
-                            {% if result.connected_user %}
-
-                                <div class="info-row">
-
-                                    <div class="icon">
-
-                                        🔗
-
-                                    </div>
-
-
-                                    <div>
-
-                                        <h3>
-                                            Connected User
-                                        </h3>
-
-
-                                        <p class="connected-user">
-
-                                            {{ result.connected_user }}
-
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                            {% endif %}
-
-
-                        </div>
-
-
-                    {% endfor %}
-
-
-                {% endif %}
-
-
-            </section>
-
+            <div class="info-row">
+                <div class="icon">🚨</div>
+                <div>
+                    <h3>Label</h3>
+                    <p class="{{ 'scam' if result.label|lower == 'scam' else 'safe' }}">
+                        {{ result.label }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="icon">📱</div>
+                <div>
+                    <h3>Shared Phone</h3>
+                    <p>{{ result.phone }}</p>
+                </div>
+            </div>
+
+            {% if result.connected_user %}
+            <div class="info-row">
+                <div class="icon">🔗</div>
+                <div>
+                    <h3>Connected User</h3>
+                    <p class="connected-user">{{ result.connected_user }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </article>
+        {% endfor %}
 
         {% endif %}
+    </section>
+    {% endif %}
+</main>
 
-
-    </main>
-
-
-    <!-- FOOTER -->
-
-    <footer>
-
-        <p>
-
-            ScamGraph · AI-Assisted Scam Network Investigation
-
-        </p>
-
-    </footer>
-
-
-    <!-- LOADING STATE -->
-
-    <script>
-
-        const form =
-            document.getElementById(
-                "investigationForm"
-            );
-
-
-        const button =
-            document.getElementById(
-                "investigateBtn"
-            );
-
-
-        const buttonText =
-            document.getElementById(
-                "buttonText"
-            );
-
-
-        form.addEventListener(
-            "submit",
-            function () {
-
-                button.disabled = true;
-
-                buttonText.textContent =
-                    "⏳ Investigating...";
-
-            }
-        );
-
-    </script>
-
+<footer>
+    <p>ScamGraph · Graph-Based Scam Network Investigation</p>
+</footer>
 
 </body>
-
 </html>

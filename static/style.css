@@ -1,562 +1,177 @@
-/* ===============================
-   GLOBAL
-================================ */
-
-* {
-    box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 
 body {
-
     margin: 0;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    background:
-        linear-gradient(
-            135deg,
-            #eef3f9,
-            #dce6f3
-        );
-
-    color: #25364d;
-
     min-height: 100vh;
-
+    font-family: Arial, Helvetica, sans-serif;
+    color: #25364d;
+    background: linear-gradient(135deg, #eef3f9, #dce6f3);
 }
-
-
-/* ===============================
-   HEADER
-================================ */
 
 .header {
-
     text-align: center;
-
     padding: 30px 20px 15px;
-
 }
-
 
 .header h1 {
-
     margin: 0;
-
     color: #294878;
-
     font-size: 48px;
-
 }
-
 
 .header p {
-
     color: #5f7186;
-
     font-size: 20px;
-
-    margin-top: 12px;
-
 }
-
-
-/* ===============================
-   MAIN CONTAINER
-================================ */
 
 .container {
-
     width: 90%;
-
-    max-width: 1250px;
-
+    max-width: 1000px;
     margin: auto;
-
 }
 
-
-/* ===============================
-   SEARCH CARD
-================================ */
+.search-card, .risk-card, .result-card, .no-result {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(34, 52, 78, 0.10);
+}
 
 .search-card {
-
-    background: white;
-
-    padding: 35px;
-
     margin-top: 35px;
-
-    border-radius: 20px;
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 52, 78, 0.12);
-
+    padding: 35px;
 }
-
 
 .search-card h2 {
-
     margin-top: 0;
-
-    font-size: 34px;
-
-    color: #273b55;
-
+    font-size: 30px;
 }
-
 
 form {
-
     display: flex;
-
     gap: 15px;
-
 }
-
 
 input {
-
     width: 100%;
-
-    padding: 20px;
-
+    padding: 18px;
+    border: 1px solid #c8d1dc;
     border-radius: 14px;
-
-    border:
-        1px solid #c8d1dc;
-
-    font-size: 20px;
-
-    outline: none;
-
+    font-size: 18px;
 }
-
-
-input:focus {
-
-    border-color: #3566c4;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(53, 102, 196, 0.12);
-
-}
-
 
 button {
-
-    min-width: 220px;
-
-    padding: 20px;
-
+    min-width: 190px;
     border: none;
-
     border-radius: 14px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #3566c4,
-            #254d9a
-        );
-
+    padding: 18px;
+    background: #3566c4;
     color: white;
-
-    font-size: 20px;
-
+    font-size: 18px;
     font-weight: bold;
-
     cursor: pointer;
-
-    transition: 0.2s;
-
 }
 
+button:hover { transform: translateY(-1px); }
 
-button:hover {
+.results-section { margin-top: 35px; }
 
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 8px 18px
-        rgba(53, 102, 196, 0.3);
-
-}
-
-
-/* ===============================
-   RESULTS
-================================ */
-
-.results-section {
-
-    margin-top: 40px;
-
-}
-
-
-.results-title {
-
-    font-size: 34px;
-
-    margin-bottom: 25px;
-
-}
-
-
-/* ===============================
-   RISK CARD
-================================ */
+.results-title { font-size: 30px; }
 
 .risk-card {
-
-    background: white;
-
     text-align: center;
-
-    padding: 45px;
-
-    border-radius: 20px;
-
-    border-top:
-        6px solid #d73333;
-
-    margin-bottom: 35px;
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 52, 78, 0.10);
-
+    padding: 35px;
+    margin-bottom: 25px;
+    border-top: 6px solid #d73333;
 }
-
-
-.risk-card h2 {
-
-    font-size: 34px;
-
-    margin-top: 0;
-
-}
-
 
 .risk-score {
-
-    font-size: 80px;
-
+    font-size: 72px;
     font-weight: bold;
-
     color: #d92c2c;
-
-    margin: 20px;
-
 }
 
-
-.high-risk {
-
+.risk-level {
+    font-size: 25px;
+    font-weight: bold;
     color: #c52d26;
-
-    font-size: 28px;
-
-    font-weight: bold;
-
-    letter-spacing: 2px;
-
+    letter-spacing: 1px;
 }
 
-
-.low-risk {
-
-    color: #188347;
-
-    font-size: 28px;
-
-    font-weight: bold;
-
-}
-
-
-.risk-card p {
-
-    font-size: 19px;
-
-    color: #66778b;
-
-    margin-top: 35px;
-
-}
-
-
-/* ===============================
-   RESULT CARD
-================================ */
+.low-risk .risk-score, .low-risk .risk-level { color: #188347; }
+.medium-risk .risk-score, .medium-risk .risk-level { color: #b7791f; }
 
 .result-card {
-
-    background: white;
-
-    padding: 35px;
-
-    border-radius: 20px;
-
-    border-left:
-        5px solid #e34a4a;
-
-    margin-bottom: 25px;
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 52, 78, 0.10);
-
+    padding: 28px;
+    margin-bottom: 20px;
+    border-left: 5px solid #e34a4a;
 }
-
 
 .info-row {
-
     display: flex;
-
-    align-items: flex-start;
-
     gap: 18px;
-
     padding: 15px 0;
-
-    border-bottom:
-        1px solid #edf0f4;
-
+    border-bottom: 1px solid #edf0f4;
 }
 
-
-.info-row:last-child {
-
-    border-bottom: none;
-
-}
-
+.info-row:last-child { border-bottom: none; }
 
 .icon {
-
-    font-size: 28px;
-
-    width: 40px;
-
+    width: 35px;
+    font-size: 26px;
 }
-
 
 .info-row h3 {
-
-    margin: 0 0 8px;
-
-    font-size: 22px;
-
+    margin: 0 0 7px;
+    font-size: 20px;
 }
-
 
 .info-row p {
-
     margin: 0;
-
-    font-size: 20px;
-
+    font-size: 18px;
     line-height: 1.5;
-
 }
-
-
-/* ===============================
-   COLORS
-================================ */
 
 .scam {
-
     color: #d52f28;
-
     font-weight: bold;
-
     text-transform: uppercase;
-
 }
-
 
 .safe {
-
     color: #168343;
-
     font-weight: bold;
-
 }
-
 
 .connected-user {
-
     color: #3566c4;
-
     font-weight: bold;
-
 }
-
-
-/* ===============================
-   NO RESULTS
-================================ */
 
 .no-result {
-
-    background: white;
-
     text-align: center;
-
-    padding: 60px 30px;
-
-    border-radius: 20px;
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 52, 78, 0.10);
-
+    padding: 60px 25px;
 }
 
-
-.not-found-icon {
-
-    font-size: 60px;
-
-}
-
-
-.no-result h2 {
-
-    font-size: 30px;
-
-}
-
-
-.no-result p {
-
-    font-size: 20px;
-
-    color: #607080;
-
-}
-
-
-/* ===============================
-   ERROR
-================================ */
+.not-found-icon { font-size: 60px; }
 
 .error-card {
-
+    margin-top: 25px;
+    padding: 20px;
+    border-left: 5px solid #d92d20;
+    border-radius: 12px;
     background: #fff3f3;
-
-    color: #b42318;
-
-    padding: 25px;
-
-    border-radius: 15px;
-
-    border-left:
-        5px solid #d92d20;
-
-    margin-top: 30px;
-
+    color: #9f1c13;
 }
-
-
-.error-card h3 {
-
-    margin-top: 0;
-
-}
-
-
-/* ===============================
-   FOOTER
-================================ */
 
 footer {
-
     text-align: center;
-
     padding: 30px;
-
     color: #607080;
-
 }
 
-
-/* ===============================
-   MOBILE
-================================ */
-
 @media (max-width: 700px) {
-
-    .container {
-
-        width: 94%;
-
-    }
-
-
-    .header h1 {
-
-        font-size: 36px;
-
-    }
-
-
-    .search-card {
-
-        padding: 25px;
-
-    }
-
-
-    .search-card h2 {
-
-        font-size: 27px;
-
-    }
-
-
-    form {
-
-        flex-direction: column;
-
-    }
-
-
-    button {
-
-        width: 100%;
-
-    }
-
-
-    .results-title {
-
-        font-size: 27px;
-
-    }
-
-
-    .risk-card {
-
-        padding: 30px 15px;
-
-    }
-
-
-    .risk-score {
-
-        font-size: 60px;
-
-    }
-
+    form { flex-direction: column; }
+    button { width: 100%; }
+    .header h1 { font-size: 36px; }
+    .risk-score { font-size: 56px; }
 }

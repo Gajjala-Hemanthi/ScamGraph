@@ -1,7 +1,30 @@
 from flask import Flask, render_template, request
-from database import driver
+from database import get_driver
 
 app = Flask(__name__)
+
+
+def calculate_risk(records):
+    if not records:
+        return 0, "NO DATA"
+
+    scam_count = sum(
+        1 for r in records
+        if str(r["label"]).lower() == "scam"
+    )
+
+    connections = {
+        r["connected_user"]
+        for r in records
+        if r["connected_user"]
+    }
+
+    if scam_count >= 2 or (scam_count >= 1 and connections):
+        return 100, "HIGH RISK"
+    elif scam_count >= 1:
+        return 70, "MEDIUM RISK"
+
+    return 20, "LOW RISK"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -15,74 +38,72 @@ def index():
 
     if request.method == "POST":
 
-        username = request.form.get(
-            "username",
-            ""
-        ).strip()
+        username = request.form.get("username", "").strip()
 
         if username:
 
             query = """
-            MATCH (u:User {name: $username})
-                  -[:RECEIVED]->(m:Message)
-                  -[:MENTIONS_PHONE]->(p:Phone)
-                  <-[:MENTIONS_PHONE]-(m2:Message)
-                  <-[:RECEIVED]-(u2:User)
+            MATCH (u:User)
+            WHERE toLower(u.name) = toLower($username)
 
-            WHERE u.name <> u2.name
+            OPTIONAL MATCH (u)-[:RECEIVED]->(m:Message)
+            OPTIONAL MATCH (m)-[:MENTIONS_PHONE]->(p:Phone)
+
+            CALL {
+                WITH p, u
+
+                OPTIONAL MATCH
+                    (p)<-[:MENTIONS_PHONE]-(m2:Message)
+                    <-[:RECEIVED]-(other:User)
+
+                WHERE other <> u
+
+                RETURN collect(DISTINCT other.name) AS connected_users
+            }
 
             RETURN DISTINCT
-                m.text AS message,
-                m.label AS label,
-                p.number AS phone,
-                u2.name AS connected_user
+                coalesce(m.text, "") AS message,
+                coalesce(m.label, "unknown") AS label,
+                coalesce(p.number, "Not available") AS phone,
+                CASE
+                    WHEN size(connected_users) > 0
+                    THEN connected_users[0]
+                    ELSE NULL
+                END AS connected_user
             """
 
             try:
+                driver = get_driver()
 
                 with driver.session() as session:
 
-                    result = session.run(
-                        query,
-                        username=username
-                    )
-
                     results = [
                         record.data()
-                        for record in result
+                        for record in session.run(
+                            query,
+                            username=username
+                        )
                     ]
 
-                if results:
+                results = [
+                    r for r in results
+                    if r["message"]
+                    or r["phone"] != "Not available"
+                ]
 
-                    scam_count = sum(
-                        1 for record in results
-                        if str(record["label"]).lower() == "scam"
-                    )
+                risk_score, risk_level = calculate_risk(results)
 
-                    risk_score = min(
-                        100,
-                        50 + (scam_count * 50)
-                    )
-
-                    if risk_score >= 80:
-                        risk_level = "HIGH RISK"
-                    else:
-                        risk_level = "LOW RISK"
-
-                else:
-                    risk_level = "NO DATA"
+                driver.close()
 
             except Exception as e:
 
                 print("DATABASE ERROR:", e)
 
+                results = []
                 error = (
-                    "Unable to connect to the database. "
-                    "Please try again later."
+                    "Database connection failed. "
+                    "Please check the CognoDB instance and try again."
                 )
-
-                results = None
-
 
     return render_template(
         "index.html",

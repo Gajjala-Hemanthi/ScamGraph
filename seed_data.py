@@ -1,62 +1,91 @@
-from database import driver
+from database import get_driver
 
-query = """
-MATCH (n)
-DETACH DELETE n
-"""
+driver = get_driver()
 
-with driver.session() as session:
-    session.run(query)
+queries = [
 
-    session.run(
-        """
-        CREATE
-        (h:User {name: "Hemanthi"}),
-        (r:User {name: "Ravi"}),
-        (a:User {name: "Anil"}),
-        (s:User {name: "Suresh"}),
+    "MATCH (n) DETACH DELETE n",
 
-        (m1:Message {
-            text: "Congratulations! You won a prize. Click the link now.",
-            label: "scam"
-        }),
+    """
+    CREATE (h:User {name: "Hemanthi"}),
+           (r:User {name: "Ravi"}),
+           (p:User {name: "Priya"}),
+           (a:User {name: "Anil"})
+    """,
 
-        (m2:Message {
-            text: "You have won ₹50,000. Share your bank details.",
-            label: "scam"
-        }),
+    """
+    CREATE (m1:Message {
+        text: "Congratulations! You won a prize. Click the link now.",
+        label: "scam"
+    })
+    """,
 
-        (m3:Message {
-            text: "Hello! Let's meet tomorrow.",
-            label: "not_scam"
-        }),
+    """
+    CREATE (m2:Message {
+        text: "Limited-time reward. Contact this number to claim money.",
+        label: "scam"
+    })
+    """,
 
-        (m4:Message {
-            text: "Urgent! Your account will be blocked. Verify now.",
-            label: "scam"
-        }),
+    """
+    CREATE (m3:Message {
+        text: "Good morning! Shall we meet tomorrow?",
+        label: "not_scam"
+    })
+    """,
 
-        (p1:Phone {
-            number: "+919876543210"
-        }),
+    """
+    CREATE (m4:Message {
+        text: "Urgent! Your account will be blocked. Call now.",
+        label: "scam"
+    })
+    """,
 
-        (p2:Phone {
-            number: "+919123456789"
-        }),
+    """
+    CREATE (ph1:Phone {number: "+919876543210"}),
+           (ph2:Phone {number: "+919112223344"})
+    """,
 
-        (h)-[:RECEIVED]->(m1),
-        (r)-[:RECEIVED]->(m2),
-        (a)-[:RECEIVED]->(m3),
-        (s)-[:RECEIVED]->(m4),
+    """
+    MATCH (h:User {name: "Hemanthi"}),
+          (r:User {name: "Ravi"}),
+          (p:User {name: "Priya"}),
+          (a:User {name: "Anil"}),
+          (m1:Message {
+              text: "Congratulations! You won a prize. Click the link now."
+          }),
+          (m2:Message {
+              text: "Limited-time reward. Contact this number to claim money."
+          }),
+          (m3:Message {
+              text: "Good morning! Shall we meet tomorrow?"
+          }),
+          (m4:Message {
+              text: "Urgent! Your account will be blocked. Call now."
+          }),
+          (ph1:Phone {number: "+919876543210"}),
+          (ph2:Phone {number: "+919112223344"})
 
-        (m1)-[:MENTIONS_PHONE]->(p1),
-        (m2)-[:MENTIONS_PHONE]->(p1),
+    CREATE (h)-[:RECEIVED]->(m1)
+    CREATE (r)-[:RECEIVED]->(m2)
+    CREATE (p)-[:RECEIVED]->(m3)
+    CREATE (a)-[:RECEIVED]->(m4)
 
-        (m3)-[:MENTIONS_PHONE]->(p2),
-        (m4)-[:MENTIONS_PHONE]->(p2)
-        """
-    )
+    CREATE (m1)-[:MENTIONS_PHONE]->(ph1)
+    CREATE (m2)-[:MENTIONS_PHONE]->(ph1)
+    CREATE (m4)-[:MENTIONS_PHONE]->(ph2)
+    """
+]
 
-print("Seed data added successfully!")
+try:
+    with driver.session() as session:
+        for query in queries:
+            session.run(query).consume()
 
-driver.close()
+    print("Seed data loaded successfully.")
+
+except Exception as e:
+    print("SEED DATA ERROR:", e)
+
+finally:
+    driver.close()
