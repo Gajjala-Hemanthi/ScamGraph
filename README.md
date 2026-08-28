@@ -185,7 +185,11 @@ ScamGraph/
 └── static/
     └── style.css
 ```
+## Screen Recording
 
+A short screen recording demonstrating the ScamGraph application:
+
+[▶ Watch the Live Recording](./Live%20recording.mp4)
 ## Screenshots
 
 Add screenshots of:
